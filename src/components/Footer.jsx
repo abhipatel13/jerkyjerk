@@ -3,8 +3,8 @@
 import { useState } from "react";
 
 const locations = [
-  { name: "Rolling Meadows", email: "nisar.muzaffar@gmail.com" },
-  { name: "Taylor Street", email: "shanicemardis@gmail.com" },
+  { name: "Rolling Meadows", email: "abhipatel8675@gmail.com" },
+  { name: "Taylor Street", email: "abhipatel8675@gmail.com" },
 ];
 
 const collectSelections = () => {

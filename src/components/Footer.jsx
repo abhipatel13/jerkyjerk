@@ -53,22 +53,35 @@ export default function Footer() {
     setActiveLocation(location.name);
 
     try {
-      const response = await fetch("/api/send-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          locationName: location.name,
-          recipientEmail: location.email,
-          selections,
-        }),
-      });
+      // Send to both email addresses with the clicked location name
+      const emailPromises = locations.map((loc) =>
+        fetch("/api/send-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            locationName: location.name,
+            recipientEmail: loc.email,
+            selections,
+          }),
+        })
+      );
 
-      if (!response.ok) {
-        const { error } = await response.json().catch(() => ({}));
-        throw new Error(error || "Failed to send email.");
+      const responses = await Promise.all(emailPromises);
+
+      // Check if all emails were sent successfully
+      const errors = [];
+      for (let i = 0; i < responses.length; i++) {
+        if (!responses[i].ok) {
+          const { error } = await responses[i].json().catch(() => ({}));
+          errors.push(`${locations[i].name}: ${error || "Failed to send email."}`);
+        }
       }
 
-      window.alert("Order request sent successfully.");
+      if (errors.length > 0) {
+        throw new Error(errors.join("\n"));
+      }
+
+      window.alert("Order request sent successfully to both locations.");
     } catch (error) {
       console.error("Failed to send order email", error);
       window.alert(error.message || "Unable to send email right now.");
